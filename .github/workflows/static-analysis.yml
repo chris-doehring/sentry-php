@@ -1,0 +1,36 @@
+name: Static analysis
+
+on: [push, pull_request]
+
+jobs:
+    test:
+        runs-on: ${{ matrix.os }}
+        strategy:
+            fail-fast: true
+            matrix:
+                os: [ubuntu-latest]
+                php: [7.4]
+
+        name: Code style & static analysis
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php }}
+                  tools: composer:v2
+
+            - name: Install dependencies
+              run: composer update --no-interaction --no-suggest --prefer-dist
+
+            - name: PHP-CS-Fixer
+              run: composer phpcs
+
+            - name: PHPStan
+              run: composer phpstan
+
+            - name: Psalm
+              run: composer psalm
