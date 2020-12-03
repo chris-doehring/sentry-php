@@ -22,6 +22,17 @@ jobs:
                   php-version: ${{ matrix.php }}
                   tools: composer:v2
 
+            - name: Get composer cache directory
+              id: composer-cache
+              run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+            - name: Cache dependencies
+              uses: actions/cache@v2
+              with:
+                  path: ${{ steps.composer-cache.outputs.dir }}
+                  key: composer-${{ runner.os }}-${{ matrix.php }}-${{ hashFiles('composer.*') }}
+                  restore-keys: composer-${{ runner.os }}-${{ matrix.php }}-
+
             - name: Install dependencies
               run: composer update --no-interaction --no-suggest --prefer-dist
 
